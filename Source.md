@@ -1,0 +1,11 @@
+https://www.ncbi.nlm.nih.gov/gene/[geneID]/?report=expression&bioproject=PRJNA280600#
+
+HLA-A	3105
+HLA-B	3106
+HLA-C	3107
+HLA-DRB1	3123
+HLA-DRB3	3125
+HLA-DRB4	3126
+HLA-DRB5	3127
+HLA-DQB1	3119
+HLA-DPB1	3115

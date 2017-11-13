@@ -1,0 +1,5 @@
+#BioProject PRJNA280600
+#GeneID	adrenal gland	brain, Whole	brain, cerebellum	brain, fetal	heart	kidney	liver	liver, fetal	lung	placenta	prostate	salivary gland	skeletal muscle	small intestine	spleen	stomach	thymus	thyroid	trachea	uterus	
+3105	38	7.15	9.9	8.86	14.6	198	26.9	6.08	112	9.35	29.3	17.3	8.94	37.6	95.3	14.3	82.4	29	28.1	22.1	
+
+
