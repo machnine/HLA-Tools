@@ -1,5 +1,4 @@
 ### Source
-https://www.ncbi.nlm.nih.gov/gene/[geneID]/?report=expression&bioproject=PRJNA280600#
 
 |HLA Gene|Gene ID|
 |-----|---|
