@@ -1,2 +1,3 @@
 # IMGT_HLA_Stats
-Live plotting of IMGT HLA database stats in a Jupyter Notebook
+
+Read info directly from the [IMGT HLA database stats](https://www.ebi.ac.uk/ipd/imgt/hla/stats.html) page and plot it in a Jupyter Notebook. This plots the live data of the stats, useful for presentations about HLA etc.
