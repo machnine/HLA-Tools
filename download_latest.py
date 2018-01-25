@@ -28,3 +28,7 @@ def download_latest_prot_alignments(locus_list, output_path='.'):
 
     print('{}/{} files downloaded successfully.'.format(success_count, 
                                                        total_count))
+                                                       
+
+if __name__ == '__main__':
+    download_latest_prot_alignments(HLA_LOCI)
