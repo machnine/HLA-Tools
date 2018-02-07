@@ -132,7 +132,7 @@ class LocusStackingPlot():
         plt.xlim([0, len(d.index)-1])
         plt.xlabel('Release Version', {'fontsize': 12})
         ax = plt.gca()
-        ax.set_title(label='Number HLA Allele Growth By Locus', fontsize=16)
+        ax.set_title(label='HLA Allele Number Growth By Locus', fontsize=16)
         ax.set_xticks(range(len(d.index)))
         ax.set_xticklabels(d.index, rotation=90)
 
