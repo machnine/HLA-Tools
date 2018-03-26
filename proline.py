@@ -1,5 +1,6 @@
 import re
 import os
+from collections import Iterable
 from datetime import datetime
 import pandas as pd
 
@@ -36,6 +37,10 @@ insertion(s) in the alignment file. C_Prot.txt for example. This does not seem
 to affect usage, but the output position number can be confusing.
 
 '''
+#version number
+VERSION = '0.0.2'
+
+#meta data to parse
 META = {'ROWS' : 10,
         'LOCUS' : 0,
         'VERSION' : 1,
@@ -43,7 +48,12 @@ META = {'ROWS' : 10,
         'SEQ_START' : 6,
         'FIRST_ALLELE' : 8}
 
+#read the alignment file in as fixed width text
 WIDTHS = {'ALLELE':18, 'SEQ':122}
+
+#suffixes for Null/Question?/Secreted proteins
+EXPRESSION_EXCLUSION = 'NQS'
+
 
 class Protein_Alignment:
     '''
@@ -51,16 +61,10 @@ class Protein_Alignment:
     
     Parameters
     ----------
-    alignment_file: alignment flat file (*.txt) file downloaded from IMGT
-    alleles: keyword argument, List like
-             Use this to limit the number of alleles to process to reduce time
-             in computing. Processing 'DPB1_Prot.txt' (v3.30) takes about 800ms, 
-             when limiting the number of alleles, the time cab be reduced to as
-             low as 300ms. Processing 'ClassI_Prot.txt' (v3.30) takes 3200ms, 
-             when limiting the number of alleles, the processing time can be 
-             reduced to as low as 800ms. 
-             Tested on PC with i5 4460 CPU and 8Gb RAM. 
-             
+    alignment_file      : alignment flat file (*.txt) file downloaded from IMGT
+    alleles             : limit to the list of alleles to align
+    ignore_non_expressed: flag to exclude alleles with sufixes defined in EXPRESSION_EXCLUSION
+    
     Examples
     --------
     >>> all_dpb = Protein_alignment('DPB1 Prot.txt')
@@ -71,10 +75,11 @@ class Protein_Alignment:
     >>>
     ...  
     '''
-  
+      
     
     def __init__(self, alignment_file, **kwargs):
         #this may require more input validations
+        self.__ignore_non_expressed = kwargs.get('ignore_non_expressed', False)
         self.__allele_list = kwargs.get('alleles', None)
         if os.path.exists(alignment_file):
             self.__alignment_file = alignment_file
@@ -95,15 +100,39 @@ class Protein_Alignment:
     @property
     def aligned(self):
         '''
-        Return the alignment in a pandas dataframe
+        Return the alignment as a pandas dataframe
         Speed could potentially be an issue here as processing the alignment
         file for all of the HLA class I proteins (Class I Prot.txt) can 
         take up to 160s on a PC with an i5 processor
         '''
         return self.__get_alignment(self.__alignment_file)
+    
+    
+    ###Public Functions###
+    def unique_seq(self, aa_range=None):
+        '''
+        '''
+        if not aa_range:
+            #no aa range specified
+            pass
+        elif isinstance(aa_range, Iterable):
+            #only start and finish given
+            if len(aa_range) == 2:
+                aa_range = list(range(aa_range[0], aa_range[1] + 1))
+            #wrong param
+            elif len(aa_range) < 2:
+                raise ValueError('aa_range size < 2, please specify the start and finish of AA positions')
+            #individual positions given in a list
+            else:
+                pass
+        else:
+            raise ValueError('aa_range must be an Iterable object')
+            
+        aligned = self.__get_alignment(self.__alignment_file)
+        return self.__unique_protein_seq(aligned, aa_range)
 
     
-    ###Functions###  
+    ###Private Functions###  
 
     def __get_meta_data(self):
         '''
@@ -181,6 +210,9 @@ class Protein_Alignment:
     
     
     def __read_raw_text_rows(self, alignment_file):
+        '''
+        read the raw text alignment file row by row into a list
+        '''
         with open(alignment_file, 'r') as fin:
              data = [fin.readline() for x in range(META['ROWS'])]
         return data
@@ -193,12 +225,24 @@ class Protein_Alignment:
                         DRB1*01:
                         TAP1*01:
         if found return True to keep the row
+        if ignore_non_expressed flag = True also exclude all of the
+        unknown 'Q', secreted 'S' and null 'N' alleles defined in EXPRESSION_EXCLUSION.
         '''
-        if re.search('\w+\*\d{2,3}:', input_string):
-            return True
+        
+        looks_like_hla = re.compile('(\w+\*\d{{2,3}}.*:\d{{2,3}})([{}]?)'.format(EXPRESSION_EXCLUSION))
+        
+        matches = looks_like_hla.search(input_string)
+        if matches:
+            if self.__ignore_non_expressed:
+                hla_name, suffix = matches.groups()
+                if len(suffix) >0:
+                    return False
+                return True
+            else:
+                return True
         else:
             return False
-    
+                        
 
     def __relabel_columns(self, df: pd.DataFrame):
         '''
@@ -268,3 +312,30 @@ class Protein_Alignment:
         d.columns = self.__relabel_columns(d)
 
         return d
+
+    
+    def __unique_protein_seq(self, df, aa_range):
+        '''
+        uniquefy a given protein sequence alignment dataframe
+        return a new dataframe without allele labelling
+        but with the same column (aa position) labels
+        '''
+        if aa_range:
+            columns = aa_range
+            df = df[aa_range]
+        else:
+            columns = df.columns
+        
+        #remove null alleles and 'Q', and 'S' alleles
+        df = df.loc[[x for x in df.index if not (x[-1] in ('S', 'Q', 'N'))]]
+
+        #merge individual seq into a string
+        df['seq'] = df.apply(lambda x: ''.join(x), axis=1)
+
+        #uniquefy the datafame data 
+        df = pd.DataFrame([pd.Series(list(x)) for x in set(df['seq'])])
+
+        #relabelling columns
+        df.columns = columns
+
+        return df
