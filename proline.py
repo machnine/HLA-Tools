@@ -38,7 +38,7 @@ to affect usage, but the output position number can be confusing.
 
 '''
 #version number
-VERSION = '0.0.2'
+VERSION = 'proline: HLA protein aligment utilities version: ' + '0.0.2'
 
 #meta data to parse
 META = {'ROWS' : 10,
