@@ -27,7 +27,7 @@ class DataGrowthPlot():
 
 
 
-    def plot(self, to_file='HLA_data_growth.png'):
+    def plot(self, to_file='HLA_data_growth.png', savefig=False):
 
         #shorthand
         d = self.__stats
@@ -67,8 +67,8 @@ class DataGrowthPlot():
 
             yb = d.loc[d[d['Month'] == label].index, 'Component Entries']
             plt.text(x=tick, y=yb + 2000, s=yb[0], alpha=0.6, fontsize=12)
-        
-        plt.savefig(to_file)
+        if savefig:
+            plt.savefig(to_file)
 
 
     def release_dates(self):
@@ -122,7 +122,7 @@ class LocusStackingPlot():
 
 
     
-    def plot(self, to_file='Allele_growth_by_locus.png'):
+    def plot(self, to_file='Allele_growth_by_locus.png', savefig=False):
         #only interested in the 'classic' HLA
         d = self.__stats[['A', 'B', 'C', 'DRB1', 'DQB1', 'DPB1']]
         #ignore minor version changes take the max values
@@ -145,5 +145,5 @@ class LocusStackingPlot():
                     y=y-v*2/3, 
                     alpha=.8, 
                     fontdict={'size':14, 'alpha':.5}) 
-            
-        plt.savefig(to_file)
+        if savefig:
+            plt.savefig(to_file)
