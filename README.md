@@ -1,5 +1,5 @@
 # proline
-Read an HLA protein sequence flat text files from IMGT HLA's Github (https://github.com/ANHIG/IMGTHLA/tree/Latest/alignments) and convert them to Pandas.DataFrame objects.
+Read HLA protein sequence flat text files from IMGT HLA's Github (https://github.com/ANHIG/IMGTHLA/tree/Latest/alignments) and convert them to Pandas.DataFrame objects.
 
 ## download the lastest release:
 ```
