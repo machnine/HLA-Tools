@@ -140,10 +140,10 @@ class LocusStackingPlot():
         x = len(d)
         for k, v in d.iloc[-1].items():
             y += v
-            plt.text(s=k, 
-                    x=x - 5, 
-                    y=y-v*2/3, 
-                    alpha=.8, 
-                    fontdict={'size':14, 'alpha':.5}) 
+            plt.text(s=f'{k}: {v}', 
+                     x=x-8, 
+                     y=y-v*2/3, 
+                     alpha=.8, 
+                     fontdict={'size':14, 'alpha':.5}) 
         if savefig:
             plt.savefig(to_file)
