@@ -32,11 +32,14 @@ Line 8 is the actual beginning of a section of sequence alignments
 
 To do:
 
-The amino acid position numbering is not 'correct' if there is allele with
-insertion(s) in the alignment file. C_Prot.txt for example. This does not seem
-to affect usage, but the output position number can be confusing.
+- The amino acid position numbering is not 'correct' if there is allele with
+  insertion(s) in the alignment file. C_Prot.txt for example. This does not seem
+  to affect usage, but the output position number can be confusing.
+
+- Ability to choose any reference seq for alignment instead of just the default.
 
 '''
+
 #version number
 VERSION = 'proline: HLA protein aligment utilities version: ' + '0.0.2'
 
@@ -111,6 +114,8 @@ class Protein_Alignment:
     ###Public Functions###
     def unique_seq(self, aa_range=None):
         '''
+        uniquefy sequeneces in the given aa_range 
+        return them in a dataframe without allele indices
         '''
         if not aa_range:
             #no aa range specified
@@ -129,6 +134,7 @@ class Protein_Alignment:
             raise ValueError('aa_range must be an Iterable object')
             
         aligned = self.__get_alignment(self.__alignment_file)
+        
         return self.__unique_protein_seq(aligned, aa_range)
 
     
