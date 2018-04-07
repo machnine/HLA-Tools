@@ -1,1 +1,1 @@
-Dowload the latest [HLA Ambiguity file](https://github.com/ANHIG/IMGTHLA/raw/Latest/xml/hla_ambigs.xml.zip) from the [IMGT HLA Github](https://github.com/ANHIG/IMGTHLA/)repository, extract the G Groups and output them into a json file.
+Dowload the latest [HLA Ambiguity file](https://github.com/ANHIG/IMGTHLA/raw/Latest/xml/hla_ambigs.xml.zip) from the [IMGT HLA Github](https://github.com/ANHIG/IMGTHLA/) repository, extract the G Groups and output them into a json file.
