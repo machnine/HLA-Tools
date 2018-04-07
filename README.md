@@ -1,7 +1,7 @@
 # HLA-Tools
 A collections of tools created to access and manipulate HLA data from various reference sources
 
-* __[HLA G Groups] (https://github.com/machnine/HLA-Tools/tree/master/hla%20g%20groups)__
+* __[HLA G Groups](https://github.com/machnine/HLA-Tools/tree/master/hla%20g%20groups)__
 Generate a json file of HLA G groups using the latest HLA ambiguity file
 
 * __[HLA Gene Expressions](https://github.com/machnine/HLA-Tools/tree/master/hla%20gene%20expression)__
