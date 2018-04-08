@@ -1,6 +1,9 @@
 # HLA-Tools
 A collections of tools created to access and manipulate HLA data from various reference sources
 
+* __[cRF Calculator](https://github.com/machnine/HLA-Tools/tree/master/crf%20calculator)__
+Calculated reaction frequency calculator Python module (no Excel xlsb)
+
 * __[HLA G Groups](https://github.com/machnine/HLA-Tools/tree/master/hla%20g%20groups)__
 Generate a json file of HLA G groups using the latest HLA ambiguity file
 
