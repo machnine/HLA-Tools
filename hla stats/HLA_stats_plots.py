@@ -34,14 +34,15 @@ class DataGrowthPlot():
         d = self.__stats
 
         #plot
-        d.plot(figsize=(16, 8), 
+        d.plot(figsize=(16, 6), 
                alpha=0.6, 
                linewidth=6, 
                rot=90)
         
         ax = plt.gca()
         
-        #display one tick label every 3 releases (9 calendar months in between)
+        #display one tick label every 3 releases 
+        # (9 calendar months in between)
         #displaying every release makes it too 'busy'
         
         _intervals = 3
@@ -53,21 +54,41 @@ class DataGrowthPlot():
         
         #set ticks = interval plus the latest release
         ax.set_xticks(xticks[::_intervals] + xticks[-1:])
-        ax.set_xticklabels(xticklabels[::_intervals].tolist() + xticklabels[-1:].tolist())
+        ax.set_xticklabels(xticklabels[::_intervals].tolist() + \
+                           xticklabels[-1:].tolist())
         
         ax.set_title(label='IMGT HLA Data Growth', fontsize=16)       
         plt.xlabel('Release Month', {'fontsize': 12})
         plt.legend(prop={'size':12})
+        
+        plt.xlim(xmax=_len)
+        plt.ylim(ymin=0)
         
         x_offset = -1.5
         y_offset = 500
         for tick, label in zip(xticks, xticklabels):
             if (tick % (_intervals ** 2) == 0) or (tick == xticks[-1]):
                 ya = d.loc[d[_month == label].index, 'Alleles']
-                plt.text(x=tick+x_offset, y=ya+y_offset, s=ya[0], alpha=0.6, fontsize=12)
+                plt.text(x=tick+x_offset, 
+                         y=ya-300, 
+                         s=ya[0], 
+                         alpha=0.6, 
+                         fontsize=12,
+                         bbox=dict(boxstyle="round, pad=0.1",
+                                   ec='none',
+                                   fc=(1, 1, 1, 0.5),
+                         ))
 
                 yb = d.loc[d[_month == label].index, 'Component Entries']
-                plt.text(x=tick+x_offset, y=yb+y_offset, s=yb[0], alpha=0.6, fontsize=12)
+                plt.text(x=tick+x_offset, 
+                         y=yb+300, 
+                         s=yb[0], 
+                         alpha=0.6, 
+                         fontsize=12,
+                         bbox=dict(boxstyle="round, pad=0.1",
+                                   ec='none',
+                                   fc=(1, 1, 1, 0.5),
+                        ))
         if savefig:
             plt.savefig(to_file)
 
@@ -85,7 +106,8 @@ class LocusStackingPlot():
         if 'http' in url_or_text_file:
             print('Reading directly from url may take a while...')
         
-        header_line, separator = self.__get_history_file_header_type(url_or_text_file)
+        header_line, separator = \
+            self.__get_history_file_header_type(url_or_text_file)
         
         #read in the data
         d = pd.read_csv(url_or_text_file,
@@ -171,14 +193,15 @@ class LocusStackingPlot():
         d = self.__stats[['A', 'B', 'C', 'DRB1', 'DQB1', 'DPB1']]
         #ignore minor version changes take the max values
         d = d.reset_index().groupby('index').agg('max')
-        plt.figure(figsize=(16, 8))
+        plt.figure(figsize=(16, 6))
         plt.stackplot(d.index, d.T, alpha=.8)
         plt.xlim([0, len(d.index)-1])
         plt.xlabel('Release Version', {'fontsize': 12})
         ax = plt.gca()
         ax.set_title(label='HLA Allele Number Growth By Locus', fontsize=16)
-        ax.set_xticks(range(len(d.index)))
-        ax.set_xticklabels(d.index, rotation=90)
+        xticks = list(range(len(d.index)))
+        ax.set_xticks(xticks[::3] + xticks[-1:])
+        ax.set_xticklabels(d.index[::3].append(d.index[-1:]), rotation=90)
 
         y = 0
         x = len(d)
@@ -193,6 +216,6 @@ class LocusStackingPlot():
                      bbox=dict(boxstyle="round, pad=0.1",
                        ec='none',
                        fc=(1, 1, 1, 0.5),
-                       )) 
+                       ))
         if savefig:
             plt.savefig(to_file)
