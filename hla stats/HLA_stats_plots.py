@@ -1,6 +1,7 @@
 from collections import Counter
 import pandas as pd
 import matplotlib.pyplot as plt
+import requests
 
 class DataGrowthPlot():
     '''
@@ -33,40 +34,40 @@ class DataGrowthPlot():
         d = self.__stats
 
         #plot
-        d.plot(x=['Month'], 
-            y=['Alleles', 'Component Entries'], 
-            figsize=(16, 8), 
-            alpha=0.6, 
-            linewidth=6, 
-            rot=90)
+        d.plot(figsize=(16, 8), 
+               alpha=0.6, 
+               linewidth=6, 
+               rot=90)
         
         ax = plt.gca()
-        
         
         #display one tick label every 3 releases (9 calendar months in between)
         #displaying every release makes it too 'busy'
         
-        _release_intervals = 3
+        _intervals = 3
+        _len = len(d)
+        _month = d['Month']
         
-        xticks = [x for x in range(0, len(d['Month']), _release_intervals)]
-        xticklabels = d['Month'][::_release_intervals]
-        ax.set_xticks(xticks)
-        ax.set_xticklabels(xticklabels)
-        ax.set_title(label='IMGT HLA Data Growth', fontsize=16)
+        xticks = [x for x in range(_len)]
+        xticklabels = _month
         
-        xticks = xticks[::3]
-        xticklabels = xticklabels[::3]
+        #set ticks = interval plus the latest release
+        ax.set_xticks(xticks[::_intervals] + xticks[-1:])
+        ax.set_xticklabels(xticklabels[::_intervals].tolist() + xticklabels[-1:].tolist())
         
+        ax.set_title(label='IMGT HLA Data Growth', fontsize=16)       
         plt.xlabel('Release Month', {'fontsize': 12})
+        plt.legend(prop={'size':12})
         
-        plt.legend(prop={'size':14})
-        
+        x_offset = -1.5
+        y_offset = 500
         for tick, label in zip(xticks, xticklabels):
-            ya = d.loc[d[d['Month'] == label].index, 'Alleles']
-            plt.text(x=tick, y=ya - 1500, s=ya[0], alpha=0.6, fontsize=12)
+            if (tick % (_intervals ** 2) == 0) or (tick == xticks[-1]):
+                ya = d.loc[d[_month == label].index, 'Alleles']
+                plt.text(x=tick+x_offset, y=ya+y_offset, s=ya[0], alpha=0.6, fontsize=12)
 
-            yb = d.loc[d[d['Month'] == label].index, 'Component Entries']
-            plt.text(x=tick, y=yb + 2000, s=yb[0], alpha=0.6, fontsize=12)
+                yb = d.loc[d[_month == label].index, 'Component Entries']
+                plt.text(x=tick+x_offset, y=yb+y_offset, s=yb[0], alpha=0.6, fontsize=12)
         if savefig:
             plt.savefig(to_file)
 
@@ -83,13 +84,16 @@ class LocusStackingPlot():
     def __init__(self, url_or_text_file, version_to_date_map=None):
         if 'http' in url_or_text_file:
             print('Reading directly from url may take a while...')
-
+        
+        header_line, separator = self.__get_history_file_header_type(url_or_text_file)
+        
         #read in the data
         d = pd.read_csv(url_or_text_file,
-                sep='\t',
-                header=0,
-                index_col='HLA_ID',
-                dtype=str)
+                        sep=separator,                        
+                        skiprows=header_line,
+                        index_col='HLA_ID',
+                        dtype=str)
+        
 
         #fill the gaps with empty strings
         d.fillna('', inplace=True)
@@ -121,6 +125,46 @@ class LocusStackingPlot():
         self.__stats = new_d
 
 
+    def __get_history_file_header_type(self, url_or_file):
+        '''
+        function to find where the file really starts
+        after release 3.32 the allele hisotry file changes
+        from tsv to csv with meta information on top
+        '''
+        header = self.__read_header(url_or_file)
+        for n, line in enumerate(header):
+            if 'HLA_ID' in line:
+                return n, line[len('HLA_ID'):len('HLA_ID')+1]
+    
+    
+    def __read_header(self, url_or_file):
+        if 'http://' in url_or_file or 'https://' in url_or_file:
+            return self.__read_header_from_url(url_or_file)
+        else:
+            return self.__read_header_from_file(url_or_file)
+                
+    
+    
+    
+    def __read_header_from_file(self, file_name):
+        '''
+        helper function read the first 100 lines from 
+        allele history text file
+        ''' 
+        with open(file_name, 'r') as f:
+            hundred_lines = f.readlines()[:100]
+        return hundred_lines        
+    
+    
+    def __read_header_from_url(self, url):
+        '''
+        helper function read the first 100 lines from
+        allele history text file URL
+        '''
+        with requests.get(url) as r:
+            hundred_lines = r.text.splitlines()[:100]
+        return hundred_lines
+
     
     def plot(self, to_file='Allele_growth_by_locus.png', savefig=False):
         #only interested in the 'classic' HLA
@@ -141,9 +185,14 @@ class LocusStackingPlot():
         for k, v in d.iloc[-1].items():
             y += v
             plt.text(s=f'{k}: {v}', 
-                     x=x-8, 
+                     x=x-1, 
                      y=y-v*2/3, 
                      alpha=.8, 
-                     fontdict={'size':14, 'alpha':.5}) 
+                     ha='right',
+                     fontdict={'size':14, 'alpha':.5},
+                     bbox=dict(boxstyle="round, pad=0.1",
+                       ec='none',
+                       fc=(1, 1, 1, 0.5),
+                       )) 
         if savefig:
             plt.savefig(to_file)
